@@ -26,7 +26,7 @@ app.use(cors(corsOption));
 mongoose
    .connect(MONGOOSE_URL)
    .then(() => {
-    console.log("dn connected");
+    console.log("db connected");
    })
 
    .catch((error) => {

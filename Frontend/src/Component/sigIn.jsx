@@ -1,15 +1,13 @@
 import React, { useState } from "react";
-import axios from 'axios'
+import axios from "axios";
 // import { useSearchParams } from "react-router-dom";
 
 function sigIn() {
+  const [email, setEmail] = useState("");
+  const [fname, setFname] = useState("");
+  const [lname, setLname] = useState("");
+  const [password, setPassword] = useState("");
 
-  const [email, setEmail] = useState('')
-  const [fname, setFname] = useState('');
-  const [lname, setLname] = useState('');
-  const [password, setPassword] = useState('');
-
-  
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -52,7 +50,8 @@ function sigIn() {
           <div>
             <span>Enter First Name</span>
             <br />
-            <input type="text" 
+            <input
+              type="text"
               value={fname}
               onChange={(e) => setFname(e.target.value)}
             />
@@ -60,7 +59,8 @@ function sigIn() {
           <div>
             <span>Enter Last Name</span>
             <br />
-            <input type="text" 
+            <input
+              type="text"
               value={lname}
               onChange={(e) => setLname(e.target.value)}
             />
@@ -70,19 +70,21 @@ function sigIn() {
         <div>
           <span>Email ID</span>
           <br />
-          <input type="email" 
+          <input
+            type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            style={{ width: "100%", display: "flex" }} 
+            style={{ width: "100%", display: "flex" }}
           />
         </div>
 
         {/* password */}
-        <div style={{display:'flex', gap:'30px'}}>
+        <div style={{ display: "flex", gap: "30px" }}>
           <div>
             <span>Enter Password</span>
             <br />
-            <input type="Password" 
+            <input
+              type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
@@ -90,15 +92,17 @@ function sigIn() {
           <div>
             <span>Re enter Password</span>
             <br />
-            <input type="Password" />
+            <input
+              type="password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+            />
           </div>
         </div>
 
         <div style={{ display: "flex", justifyContent: "left", gap: "20px" }}>
           {/* <button>Log In</button> */}
-          <button onClick={handleSubmit}>
-            Sig In
-          </button>
+          <button onClick={handleSubmit}>Sig In</button>
         </div>
       </main>
     </div>

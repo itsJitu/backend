@@ -1,36 +1,118 @@
-const userModel = require("../models/user.models");
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom"; // ✅ need navigate
+import axios from "axios";
 
+function LogIn() {
+  const [userId, setUserId] = useState("");
+  const [password, setPassword] = useState("");
+  const navigate = useNavigate(); // ✅ to redirect
 
-const addUser = async (req, res) => {
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     try {
-        // console.log('Request Body:', req.body);
-        const {fname, lname, email, password } = req.body;
+      const response = await axios.post("http://localhost:8080/api/user/login", {
+        email: userId, // backend expects "email"
+        password: password,
+      });
 
-        if(!fname || !lname || !email || !password) {
-            return res.status(400).json({error: 'Missing required fields'});
-        }
-
-        const newUserModel = new userModel({
-            fname,
-            lname,
-            email,
-            password,
-        });
-        await newUserModel.save();
-        res.status(201).json(newUserModel);
+      // ✅ check the response
+      if (response.data.success) {
+        alert("Login Successful ✅");
+        navigate("/dashboard"); // ✅ redirect to dashboard
+      } else {
+        alert("Sign in first ❌");
+      }
     } catch (err) {
-        // console.error('Error in addUser:', err);
-        res.status(400).json({ Error: err.message });
+      console.error("Login error:", err.response?.data || err.message);
+      alert("Sign in first ❌");
     }
-};
+  };
 
-const getUser = async (req, res) => {
-    try {
-        const User = await userModel.findById(req.params.id);
-        res.status(200).json(User);
-    } catch (err) {
-        res.status(500).json({error : err.message})
-    }
-};
+  return (
+    <div>
+      <main
+        style={{
+          textAlign: "center",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh",
+          gap: "10px",
+        }}
+      >
+        <h1>Welcome to the free Chat Services</h1>
+        <div
+          style={{
+            display: "flex",
+            gap: "20px",
+            fontSize: "20px",
+            fontWeight: "bold",
+          }}
+        >
+          <h2>Log In</h2>
+          <Link to="/sigIn" style={{ textDecoration: "none", color: "black" }}>
+            <h2>Sign In</h2>
+          </Link>
+        </div>
 
-module.exports = { addUser, getUser };
+        <div>
+          <p>Enter email or phone Number</p>
+          <div
+            style={{
+              border: "1px solid black",
+              width: "300px",
+              height: "30px",
+              display: "flex",
+              alignItems: "center",
+              paddingLeft: "10px",
+              borderRadius: "5px",
+            }}
+          >
+            <input
+              type="text"
+              placeholder="Email or Phone Number"
+              value={userId}
+              onChange={(e) => setUserId(e.target.value)}
+              style={{ border: "none", outline: "none", width: "100%" }}
+            />
+          </div>
+        </div>
+
+        <div>
+          <p>Enter Your Password</p>
+          <div
+            style={{
+              border: "1px solid black",
+              width: "300px",
+              height: "30px",
+              display: "flex",
+              alignItems: "center",
+              paddingLeft: "10px",
+              borderRadius: "5px",
+            }}
+          >
+            <input
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              style={{ border: "none", outline: "none", width: "100%" }}
+            />
+          </div>
+        </div>
+
+        <div style={{ display: "flex", justifyContent: "left", gap: "20px" }}>
+          <button onClick={handleSubmit}>Log In</button>
+          <button>
+            <Link to="/sigIn" style={{ textDecoration: "none" }}>
+              Sign In
+            </Link>
+          </button>
+        </div>
+      </main>
+    </div>
+  );
+}
+
+export default LogIn;

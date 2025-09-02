@@ -1,19 +1,34 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import axios from "axios"
-
+import axios from "axios";
+import dashboard from "./dashboard";
 
 function logIn() {
+  const [userId, setUserId] = useState("");
+  const [password, setPassword] = useState("");
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await axios.post(
+        "http://localhost:8080/api/user/login",
+        {
+          email: userId, // backend expects "email"
+          password: password,
+        }
+      );
+      if (res.data.success) {
+        alert("Login Successful ✅");
+        navigate("/dashboard");
+      } else {
+        alert("Sign in first ❌");
+      }
+    } catch (err) {
+      console.error("Login error:", err);
+      alert("Sign in first ❌");
+    }
+  };
 
-    const [userId, setUserId] = useState('');
-    const [Password, setPassword] = useState("");
-
-    // const handleLogin = async () => {
-    //     try {
-    //         const response = await axios.post("")
-    //     }
-    // }
   return (
     <div>
       <main
@@ -37,7 +52,9 @@ function logIn() {
           }}
         >
           <h2>Log In</h2>
-          <Link to="/sigIn" style={{textDecoration:'none', color:'black'}}><h2>Sig In</h2></Link>
+          <Link to="/sigIn" style={{ textDecoration: "none", color: "black" }}>
+            <h2>Sig In</h2>
+          </Link>
         </div>
         <div>
           <p>Enter email or phone Number</p>
@@ -53,8 +70,10 @@ function logIn() {
             }}
           >
             <input
-              type="text"
+              type="email"
               placeholder="Email or Phone Number"
+              value={userId}
+              onChange={(e) => setUserId(e.target.value)}
               style={{ border: "none", outline: "none" }}
             />
           </div>
@@ -75,17 +94,20 @@ function logIn() {
             <input
               type="password"
               placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               style={{ border: "none", outline: "none" }}
             />
           </div>
         </div>
 
         <div style={{ display: "flex", justifyContent: "left", gap: "20px" }}>
-          <button>Log In</button>
+          <button onClick={handleSubmit}>Log In</button>
           <button>
-            Sig In
+            <Link to="/sigIn" style={{ textDecoration: "none" }}>
+              Sig In
+            </Link>
           </button>
-          
         </div>
       </main>
     </div>

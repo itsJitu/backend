@@ -1,118 +1,61 @@
-import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom"; // ✅ need navigate
-import axios from "axios";
 
-function LogIn() {
-  const [userId, setUserId] = useState("");
-  const [password, setPassword] = useState("");
-  const navigate = useNavigate(); // ✅ to redirect
+const userModel = require("../models/user.models");
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+// Register---------------------------------------------------------------------------------------------------------------
+const addUser = async (req, res) => {
     try {
-      const response = await axios.post("http://localhost:8080/api/user/login", {
-        email: userId, // backend expects "email"
-        password: password,
-      });
+        const { fname, lname, email, password } = req.body;
 
-      // ✅ check the response
-      if (response.data.success) {
-        alert("Login Successful ✅");
-        navigate("/dashboard"); // ✅ redirect to dashboard
-      } else {
-        alert("Sign in first ❌");
-      }
+        if (!fname || !lname || !email || !password) {
+            return res.status(400).json({ error: "Missing required fields" });
+        }
+
+        const existingUser = await userModel.findOne({ email });
+        if (existingUser) {
+            return res.status(400).json({ error: "User already exists" });
+        }
+
+        const newUser = new userModel({ fname, lname, email, password });
+        await newUser.save();
+        res.status(201).json({ message: "User registered successfully" });
     } catch (err) {
-      console.error("Login error:", err.response?.data || err.message);
-      alert("Sign in first ❌");
+        res.status(400).json({ Error: err.message });
     }
-  };
+};
 
-  return (
-    <div>
-      <main
-        style={{
-          textAlign: "center",
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "100vh",
-          gap: "10px",
-        }}
-      >
-        <h1>Welcome to the free Chat Services</h1>
-        <div
-          style={{
-            display: "flex",
-            gap: "20px",
-            fontSize: "20px",
-            fontWeight: "bold",
-          }}
-        >
-          <h2>Log In</h2>
-          <Link to="/sigIn" style={{ textDecoration: "none", color: "black" }}>
-            <h2>Sign In</h2>
-          </Link>
-        </div>
+// Login-------------------------------------------------------------------------------------------------------------------
+const logIn = async (req, res) => {
+    try {
+        const { email, password } = req.body;
 
-        <div>
-          <p>Enter email or phone Number</p>
-          <div
-            style={{
-              border: "1px solid black",
-              width: "300px",
-              height: "30px",
-              display: "flex",
-              alignItems: "center",
-              paddingLeft: "10px",
-              borderRadius: "5px",
-            }}
-          >
-            <input
-              type="text"
-              placeholder="Email or Phone Number"
-              value={userId}
-              onChange={(e) => setUserId(e.target.value)}
-              style={{ border: "none", outline: "none", width: "100%" }}
-            />
-          </div>
-        </div>
+        if (!email || !password) {
+            return res.status(400).json({ message: "Missing required fields" });
+        }
 
-        <div>
-          <p>Enter Your Password</p>
-          <div
-            style={{
-              border: "1px solid black",
-              width: "300px",
-              height: "30px",
-              display: "flex",
-              alignItems: "center",
-              paddingLeft: "10px",
-              borderRadius: "5px",
-            }}
-          >
-            <input
-              type="password"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              style={{ border: "none", outline: "none", width: "100%" }}
-            />
-          </div>
-        </div>
+        // search user by email
+        const data = await userModel.findOne({ email: email });
 
-        <div style={{ display: "flex", justifyContent: "left", gap: "20px" }}>
-          <button onClick={handleSubmit}>Log In</button>
-          <button>
-            <Link to="/sigIn" style={{ textDecoration: "none" }}>
-              Sign In
-            </Link>
-          </button>
-        </div>
-      </main>
-    </div>
-  );
-}
+        if (!data) {
+            return res.status(400).json({ message: "User not found" });
+        }
 
-export default LogIn;
+        if (data.password !== password) {
+            return res.status(401).json({ message: "password wrong" });
+        }
+
+        res.status(200).json({ message: "Login successful", data });
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+};
+
+const getUser = async (req, res) => {
+    try {
+        const User = await userModel.findById(req.params.id);
+        res.status(200).json(User);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};
+
+module.exports = { addUser, getUser, logIn };

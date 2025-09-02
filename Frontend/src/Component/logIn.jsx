@@ -1,34 +1,37 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
-import axios from "axios";
-import dashboard from "./dashboard";
+import { Link, useNavigate } from "react-router-dom";
+import axios from "axios"
+import dashboard from './dashboard';
+import { Navigate } from "react-router-dom"; 
+
 
 function logIn() {
-  const [userId, setUserId] = useState("");
-  const [password, setPassword] = useState("");
 
-  const handleSubmit = async (e) => {
+
+    const [userId, setUserId] = useState('');
+    const [password, setPassword] = useState("");
+    const navigate = useNavigate();
+
+
+    const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post(
-        "http://localhost:8080/api/user/login",
-        {
-          email: userId, // backend expects "email"
-          password: password,
-        }
-      );
-      if (res.data.success) {
-        alert("Login Successful ✅");
+      const response = await axios.post("http://localhost:8080/api/user/login", {
+        email: userId, // backend expects "email"
+        password: password,
+      });
+
+      if (response.data) {
         navigate("/dashboard");
-      } else {
-        alert("Sign in first ❌");
+        localStorage.setItem("userData", JSON.stringify(response.data.data));
       }
+
     } catch (err) {
       console.error("Login error:", err);
-      alert("Sign in first ❌");
+      alert(`❌ ${err.response?.data?.message || err.message}`); // Handle error message
     }
   };
-
+    
   return (
     <div>
       <main
@@ -52,10 +55,10 @@ function logIn() {
           }}
         >
           <h2>Log In</h2>
-          <Link to="/sigIn" style={{ textDecoration: "none", color: "black" }}>
-            <h2>Sig In</h2>
-          </Link>
+          <Link to="/sigIn" style={{textDecoration:'none', color:'black'}}><h2>Sig In</h2></Link>
         </div>
+
+        <form onSubmit={handleSubmit}>
         <div>
           <p>Enter email or phone Number</p>
           <div
@@ -70,7 +73,7 @@ function logIn() {
             }}
           >
             <input
-              type="email"
+              type="text"
               placeholder="Email or Phone Number"
               value={userId}
               onChange={(e) => setUserId(e.target.value)}
@@ -100,15 +103,15 @@ function logIn() {
             />
           </div>
         </div>
-
-        <div style={{ display: "flex", justifyContent: "left", gap: "20px" }}>
-          <button onClick={handleSubmit}>Log In</button>
-          <button>
-            <Link to="/sigIn" style={{ textDecoration: "none" }}>
-              Sig In
-            </Link>
+        <div style={{ display: "flex", justifyContent: "left", gap: "20px",  }}>
+          <button type="submit">
+            Log In 
           </button>
         </div>
+        </form>
+
+            <Link to="/sigIn" style={{textDecoration:'none'}}>Sig In</Link>
+
       </main>
     </div>
   );
